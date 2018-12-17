@@ -1,0 +1,92 @@
+---
+title: "Tidy Template"
+author: "Fabio Votta"
+date: "The Date"
+output: html_document
+---
+
+This script is about:
+
+Datathon Challenge
+
+## Packages and Folders
+
+```{r}
+# Install these packages if you don't have them yet
+# if (!require("pacman")) install.packages("pacman")
+# devtools::install_github("favstats/tidytemplate")
+
+pacman::p_load(tidyverse, tidytemplate, data.table, naniar)
+
+# Creates folders
+# tidytemplate::data_dir()
+# tidytemplate::images_dir()
+```
+
+
+## Load Data
+
+```{r, data}
+# download_url <- "http://databank.worldbank.org/data/download/hnp_stats_csv.zip"
+# 
+# download.file(download_url, "data/hnp_stats.csv")
+
+cntry_stats <- read_csv(file = "data/HNP_StatsData.csv")
+
+
+glimpse(cntry_stats)
+
+cntry_stats %>% 
+  janitor::clean_names() %>% 
+  filter(str_detect(indicator_name, "education")) %>%
+  vis_miss(cluster = T,show_perc_col = T)
+
+tidytemplate::ggsave_it(missvizz, width = 10, height = 12)
+
+cntry_stats %>% 
+  janitor::clean_names() %>% 
+  # filter(str_detect(indicator_name, "HIV")) #%>%
+  # filter(str_detect(indicator_name, "education")) %>% 
+  filter(indicator_code %in% c("SH.DYN.AIDS.ZS", 
+                               "SE.XPD.TOTL.GD.ZS")) %>% 
+  select(country_name, indicator_code, x2010)  %>% 
+  slice(85:518) %>% 
+  spread(indicator_code, x2010) %>%
+  janitor::clean_names() %>% 
+  ggplot(aes(se_xpd_totl_gd_zs, sh_dyn_aids_zs)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+
+
+
+
+
+```
+
+
+## Analysis / Dataviz
+
+```{r, analysis}
+
+
+#   # filter(indicator_code %in% c("SH.HIV.KNOW.FE.ZS", 
+#   #                              "SH.HIV.KNOW.MA.ZS", 
+#   #                              "SH.DYN.AIDS", 
+#   #                              "SH.HIV.ARTC.ZS", 
+#   #                              "SH.DYN.AIDS.FE.ZS", 
+#   #                              "SH.DYN.AIDS.MA.ZS")) %>% 
+#   filter(indicator_code %in% c("SH.HIV.KNOW.FE.ZS", 
+#                                "SH.DYN.AIDS.FE.ZS", 
+#                                "SE.ADT.LITR.FE.ZS", 
+#                                "SE.SEC.NENR.FE	")) %>% 
+#   slice(127:518)
+#   # filter(str_detect(indicator_name, "HIV")) %>% 
+#   # group_by(indicator_name) %>% 
+#   # slice(1)
+# 
+# cntry_stats$`Indicator Name` %>% filter()
+```
+
+
+
+## Conclusion
